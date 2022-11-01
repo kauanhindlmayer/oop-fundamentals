@@ -6,6 +6,8 @@ namespace Fundamentals
     {
         public static void Main(string[] args)
         {
+            Console.Clear();
+
             // Using e Dispose
             using (var pagamento = new PagamentoBoleto(DateTime.Now))
             {
@@ -33,6 +35,39 @@ namespace Fundamentals
             Console.WriteLine(pessoaA.Equals(pessoaB)); // true
 
             // Delegates => Anonymous Methods
+
+            // Events
+            var room = new Room(3);
+            room.RoomSoldOutEvent += OnRoomSoldOut;
+            room.ReserveSeat();
+            room.ReserveSeat();
+            room.ReserveSeat();
+            room.ReserveSeat();
+
+            // Lists
+            var payments = new List<int>();
+            payments.Add(1);
+            payments.Add(2);
+            payments.Add(3);
+
+            foreach (var item in payments)
+	        {
+                Console.WriteLine(item.ToString());
+	        }
+
+            var paidPayments = new List<int>();
+            paidPayments.AddRange(payments);
+
+            // LINQ - Language INtegrated Query
+            var payment = payments.Where(x => x == 3);
+            Console.WriteLine(payment);
+
+            payments.AsEnumerable(); // Converte uma lista para um Enumerable
+        }
+        
+        static void OnRoomSoldOut(object sender, EventArgs e)
+        {
+            Console.WriteLine("Sala lotada!");
         }
     }
 
@@ -142,5 +177,38 @@ namespace Fundamentals
     public interface IPagamento
     {
 
+    }
+
+    public class Room
+    {
+        public Room (int seats)
+	    {
+            Seats = seats;
+            seatsInUse = 0;
+	    }
+
+        private int seatsInUse = 0;
+        public int Seats { get; set; }
+
+        public void ReserveSeat()
+        {
+            seatsInUse++;
+            if (seatsInUse >= Seats)
+            {
+                OnRoomSoldOut(EventArgs.Empty);
+            }
+            else
+            {
+                Console.WriteLine("Assento reservado");
+            }
+        }
+    
+        public event EventHandler RoomSoldOutEvent;
+        
+        protected virtual void OnRoomSoldOut(EventArgs e)
+        {
+            EventHandler handler = RoomSoldOutEvent;
+            handler?.Invoke(this, e);
+        }
     }
 }
